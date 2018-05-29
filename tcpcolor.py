@@ -91,11 +91,11 @@ def ip_addr(inet):
         _ipnum += 1
     return ip
 
-def l4_port(port, both=True):
+def l4_port(port, proto, both=True):
     """Convert a port number to a service name
     """
     try:
-        name = socket.getservbyport(port)
+        name = socket.getservbyport(port, proto)
         if both:
             name = "{} ({})".format(name, port)
     except:
@@ -156,15 +156,15 @@ def print_ipv6(eth):
 
 def print_tcpudp(ip, proto):
     pdu = ip.data
-    print("{} ".format(proto))
+    print("{} ".format(proto.upper()))
     print(Color.CYAN + "    {} -> {} "
-            .format(l4_port(pdu.sport), l4_port(pdu.dport)) + Color.END)
+            .format(l4_port(pdu.sport, proto), l4_port(pdu.dport, proto)) + Color.END)
 
 def print_tcp(ip):
-    print_tcpudp(ip, "TCP")
+    print_tcpudp(ip, "tcp")
 
 def print_udp(ip):
-    print_tcpudp(ip, "UDP")
+    print_tcpudp(ip, "udp")
 
 def print_icmp(ip):
     icmp = ip.data
