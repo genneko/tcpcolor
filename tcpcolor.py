@@ -95,7 +95,7 @@ def ip_proto(protonum, both=True):
     """Convert an IP protocol number to a protocol name
     """
     try:
-        name = dict(getent.getprotobynumber(protonum)).name
+        name = getent.getprotobynumber(protonum).contents.name.decode()
         if both:
             name = "{} ({})".format(name, protonum)
     except:
