@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import sys, os, dpkt, socket
+import sys, os, dpkt, socket, getent
 from dpkt.ethernet import ETH_TYPE_ARP, ETH_TYPE_IP, ETH_TYPE_IP6
 from dpkt.arp import ARP_OP_REQUEST, ARP_OP_REPLY
 from dpkt.ip import IP_PROTO_ICMP, IP_PROTO_ICMP6, IP_PROTO_IGMP, IP_PROTO_TCP, IP_PROTO_UDP
@@ -91,6 +91,17 @@ def ip_addr(inet):
         _ipnum += 1
     return ip
 
+def ip_proto(protonum, both=True):
+    """Convert an IP protocol number to a protocol name
+    """
+    try:
+        name = dict(getent.getprotobynumber(protonum)).name
+        if both:
+            name = "{} ({})".format(name, protonum)
+    except:
+        name = "IPPROTO {}".format(protonum)
+    return name
+
 def l4_port(port, proto, both=True):
     """Convert a port number to a service name
     """
@@ -137,7 +148,7 @@ def print_ipv4(eth):
     elif ip.p == IP_PROTO_UDP:
         print_udp(ip)
     else:
-        print("IPPROTO {}".format(ip.p))
+        print("{}".format(ip_proto(ip.p)))
 
 def print_ipv6(eth):
     ip = eth.data
@@ -147,12 +158,12 @@ def print_ipv6(eth):
 
     if ip.nxt == IP_PROTO_ICMP6:
         print_icmp6(ip)
-    if ip.nxt == IP_PROTO_TCP:
+    elif ip.nxt == IP_PROTO_TCP:
         print_tcp(ip)
     elif ip.nxt == IP_PROTO_UDP:
         print_udp(ip)
     else:
-        print("IPPROTO {}".format(ip.nxt))
+        print("{}".format(ip_proto(ip.nxt)))
 
 def print_tcpudp(ip, proto):
     pdu = ip.data
