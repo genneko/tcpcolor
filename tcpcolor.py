@@ -4,7 +4,7 @@ from dpkt.ethernet import ETH_TYPE_ARP, ETH_TYPE_IP, ETH_TYPE_IP6
 from dpkt.arp import ARP_OP_REQUEST, ARP_OP_REPLY
 from dpkt.ip import IP_PROTO_ICMP, IP_PROTO_ICMP6, IP_PROTO_IGMP, IP_PROTO_TCP, IP_PROTO_UDP
 from dpkt.icmp import ICMP_ECHO, ICMP_ECHOREPLY
-from dpkt.icmp6 import ICMP6_ECHO_REQUEST, ICMP6_ECHO_REPLY
+from dpkt.icmp6 import ICMP6_ECHO_REQUEST, ICMP6_ECHO_REPLY, ND_ROUTER_SOLICIT, ND_ROUTER_ADVERT, ND_NEIGHBOR_SOLICIT, ND_NEIGHBOR_ADVERT
 from dpkt.compat import compat_ord
 
 _ipnum = ord('A');
@@ -192,7 +192,7 @@ def print_icmp(ip):
 
 def print_icmp6(ip):
     icmp = ip.data
-    print("ICMP ", end="")
+    print("ICMPv6 ", end="")
 
     if icmp.type == ICMP6_ECHO_REQUEST:
         echo = icmp.data
@@ -201,7 +201,20 @@ def print_icmp6(ip):
         echo = icmp.data
         print("Echo Reply (id {}, seq {})".format(echo.id, echo.seq))
     else:
-        print("Type {}/Code {}".format(icmp.type, icmp.code))
+        msgtype = ""
+        if icmp.type == ND_ROUTER_SOLICIT:
+            msgtype = "Router Solicitation"
+        elif icmp.type == ND_ROUTER_ADVERT:
+            msgtype = "Router Advertisement"
+        elif icmp.type == ND_NEIGHBOR_SOLICIT:
+            msgtype = "Neighbor Solicitation"
+        elif icmp.type == ND_NEIGHBOR_ADVERT:
+            msgtype = "Neighbor Advertisement"
+
+        if msgtype != "":
+            print("{}".format(msgtype))
+        else:
+            print("{}Type {}/Code {}".format(icmp.type, icmp.code))
 
 def main():
     if(len(sys.argv) > 1):
